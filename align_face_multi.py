@@ -15,8 +15,9 @@ requirements:
 """
 
 import numpy as np
-import PIL
-import PIL.Image
+# import PIL
+# import Image
+from PIL import Image
 import sys
 import os
 import glob
@@ -46,8 +47,14 @@ def get_landmark(filepath):
         # Get the landmarks/parts for the face in box d.
         shape = predictor(img, d)
         print("Part 0: {}, Part 1: {} ...".format(shape.part(0), shape.part(1)))
-
-
+    
+    if len(dets) == 0:
+        print('No face detected, saving to trash folder')
+        dirpath = os.path.join(input_dir, 'no_face_detected')
+        os.makedirs(dirpath, exist_ok=True)
+        os.system(f'cp {filepath} {dirpath}')
+        return
+    
     t = list(shape.parts())
     a = []
     for tt in t:
@@ -64,6 +71,8 @@ def align_face(filepath):
     """
 
     lm = get_landmark(filepath)
+    if lm is None:
+        return
     
     lm_chin          = lm[0  : 17]  # left-right
     lm_eyebrow_left  = lm[17 : 22]  # left-right
@@ -96,7 +105,7 @@ def align_face(filepath):
 
 
     # read image
-    img = PIL.Image.open(filepath)
+    img = Image.open(filepath)
 
     output_size=1024
     transform_size=4096
@@ -106,7 +115,7 @@ def align_face(filepath):
     shrink = int(np.floor(qsize / output_size * 0.5))
     if shrink > 1:
         rsize = (int(np.rint(float(img.size[0]) / shrink)), int(np.rint(float(img.size[1]) / shrink)))
-        img = img.resize(rsize, PIL.Image.LANCZOS)
+        img = img.resize(rsize, Image.LANCZOS)
         quad /= shrink
         qsize /= shrink
 
@@ -130,13 +139,13 @@ def align_face(filepath):
         blur = qsize * 0.02
         img += (scipy.ndimage.gaussian_filter(img, [blur, blur, 0]) - img) * np.clip(mask * 3.0 + 1.0, 0.0, 1.0)
         img += (np.median(img, axis=(0,1)) - img) * np.clip(mask, 0.0, 1.0)
-        img = PIL.Image.fromarray(np.uint8(np.clip(np.rint(img), 0, 255)), 'RGB')
+        img = Image.fromarray(np.uint8(np.clip(np.rint(img), 0, 255)), 'RGB')
         quad += pad[:2]
 
     # Transform.
-    img = img.transform((transform_size, transform_size), PIL.Image.QUAD, (quad + 0.5).flatten(), PIL.Image.BILINEAR)
+    img = img.transform((transform_size, transform_size), Image.QUAD, (quad + 0.5).flatten(), Image.BILINEAR)
     if output_size < transform_size:
-        img = img.resize((output_size, output_size), PIL.Image.LANCZOS)
+        img = img.resize((output_size, output_size), Image.LANCZOS)
 
     # Save aligned image.
     return img
@@ -145,7 +154,7 @@ def arg_parser():
     parser = argparse.ArgumentParser(description='align face')
     parser.add_argument('--input_dir', type=str, required=True, help='input directory')
     parser.add_argument('--output_dir', type=str, default=None, help='output directory')
-    parser.add_argument('--num_workers', type=int, default=4, help='number of workers')
+    parser.add_argument('--num_workers', type=int, default=32, help='number of workers')
     parser.add_argument('--predictor_path', type=str, default='./shape_predictor_68_face_landmarks.dat', help='path to dlib predictor')
     return parser
 
@@ -172,7 +181,8 @@ if __name__ == "__main__":
     def align_face_worker(filepath):
         # print(filepath)
         img = align_face(filepath)
-        img.save(os.path.join(output_dir, os.path.basename(filepath)))
+        if img is not None:
+            img.save(os.path.join(output_dir, os.path.basename(filepath)))
     
     with multiprocessing.Pool(num_workers) as p:
         p.map(align_face_worker, input_images)
