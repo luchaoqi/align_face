@@ -55,6 +55,13 @@ def get_landmark(filepath):
         os.system(f'cp {filepath} {dirpath}')
         return
     
+    if len(dets) > 1:
+        print('More than one face detected, saving to trash folder')
+        dirpath = os.path.join(input_dir, 'more_than_one_face_detected')
+        os.makedirs(dirpath, exist_ok=True)
+        os.system(f'cp {filepath} {dirpath}')
+        return
+    
     t = list(shape.parts())
     a = []
     for tt in t:
@@ -159,7 +166,7 @@ def arg_parser():
     return parser
 
 if __name__ == "__main__":
-    IMG_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG']
+    IMG_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.JPG', '.JPEG', '.PNG', '.WEBP']
     parser = arg_parser()
     args = parser.parse_args()
     input_dir = args.input_dir
@@ -182,7 +189,9 @@ if __name__ == "__main__":
         # print(filepath)
         img = align_face(filepath)
         if img is not None:
-            img.save(os.path.join(output_dir, os.path.basename(filepath)))
+            # img.save(os.path.join(output_dir, os.path.basename(filepath)))
+            # save as jpeg
+            img.save(os.path.join(output_dir, os.path.basename(filepath).split('.')[0] + '.jpg'), 'JPEG')
     
     with multiprocessing.Pool(num_workers) as p:
         p.map(align_face_worker, input_images)
