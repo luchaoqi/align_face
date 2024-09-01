@@ -1,5 +1,8 @@
 forked from: https://gist.github.com/lzhbrian/bde87ab23b499dd02ba4f588258f57d5
 
+may also check other references:  
+https://github.com/yuval-alaluf/hyperstyle/blob/main/scripts/align_faces_parallel.py
+
 usage: `python align_face_multi.py --input_dir /path/to/img_dir`, you may adjust the number of cores for multi-processing.
 
 For in-code face alignment (no separate data preprocessing through CLI), refer to `facexlib` where an example in GFPGAN is given [here](https://github.com/TencentARC/GFPGAN/blob/7552a7791caad982045a7bbe5634bbf1cd5c8679/gfpgan/utils.py#L79-L148).
