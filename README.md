@@ -3,6 +3,9 @@ forked from: https://gist.github.com/lzhbrian/bde87ab23b499dd02ba4f588258f57d5
 may also check other references:  
 https://github.com/yuval-alaluf/hyperstyle/blob/main/scripts/align_faces_parallel.py
 
+todo:
+add `only_keep_largest` from https://github.com/sczhou/CodeFormer/blob/master/scripts/crop_align_face.py
+
 requirements:
 ```
 pip install numpy pillow dlib scipy
