@@ -5,6 +5,7 @@ date: 2020.1.5
 note: code is heavily borrowed from 
     https://github.com/NVlabs/ffhq-dataset
     http://dlib.net/face_landmark_detection.py.html
+    https://github.com/sczhou/CodeFormer/blob/master/scripts/crop_align_face.py
 
 requirements:
     apt install cmake
@@ -31,7 +32,7 @@ import multiprocessing
 # download model from: http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2
 # predictor = dlib.shape_predictor('./shape_predictor_68_face_landmarks.dat')
 
-def get_landmark(filepath):
+def get_landmark(filepath, keep_largest=True):
     """get landmark with dlib
     :return: np.array shape=(68, 2)
     """
@@ -39,14 +40,9 @@ def get_landmark(filepath):
 
     img = dlib.load_rgb_image(filepath)
     dets = detector(img, 1)
-
+    
+    print("Processing: ", filepath)
     print("Number of faces detected: {}".format(len(dets)))
-    for k, d in enumerate(dets):
-        print("Detection {}: Left: {} Top: {} Right: {} Bottom: {}".format(
-            k, d.left(), d.top(), d.right(), d.bottom()))
-        # Get the landmarks/parts for the face in box d.
-        shape = predictor(img, d)
-        print("Part 0: {}, Part 1: {} ...".format(shape.part(0), shape.part(1)))
     
     if len(dets) == 0:
         print('No face detected, saving to trash folder')
@@ -56,11 +52,24 @@ def get_landmark(filepath):
         return
     
     if len(dets) > 1:
-        print('More than one face detected, saving to trash folder')
-        dirpath = os.path.join(input_dir, 'more_than_one_face_detected')
-        os.makedirs(dirpath, exist_ok=True)
-        os.system(f'cp {filepath} {dirpath}')
-        return
+        if keep_largest:
+            # Find the largest face as the main subject
+            largest_area = 0
+            largest_rect = dets[0]
+            for rect in dets:
+                area = (rect.right() - rect.left()) * (rect.bottom() - rect.top())
+                if area > largest_area:
+                    largest_area = area
+                    largest_rect = rect
+            dets = [largest_rect]
+        else:
+            print('WARNING: keep_largest is False, but more than one face detected, saving to trash folder')
+            dirpath = os.path.join(input_dir, 'more_than_one_face_detected') 
+            os.makedirs(dirpath, exist_ok=True)
+            os.system(f'cp {filepath} {dirpath}')
+            return None
+    
+    shape = predictor(img, dets[0])
     
     t = list(shape.parts())
     a = []
