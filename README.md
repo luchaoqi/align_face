@@ -17,5 +17,5 @@ For in-code face alignment (no separate data preprocessing through CLI), you may
 - [serengil/deepface: A Lightweight Face Recognition and Facial Attribute Analysis (Age, Gender, Emotion and Race) Library for Python](https://github.com/serengil/deepface)
   > best so far with detailed readme compared to the rest of the tools
 - [`facexlib`](https://github.com/xinntao/facexlib) where an example in GFPGAN is given [here](https://github.com/TencentARC/GFPGAN/blob/7552a7791caad982045a7bbe5634bbf1cd5c8679/gfpgan/utils.py#L79-L148).
-> sanity check of facexlib code justifies it with the following links: [face_template values · Issue #14 · xinntao/facexlib](https://github.com/xinntao/facexlib/issues/14) and [source code](https://github.com/xinntao/facexlib/blob/e5768d1722a3fddc6ccd1b91a6a17f432ed149b4/facexlib/utils/face_restoration_helper.py#L68).  
+  > sanity check of facexlib code justifies it with the following links: [face_template values · Issue #14 · xinntao/facexlib](https://github.com/xinntao/facexlib/issues/14) and [source code](https://github.com/xinntao/facexlib/blob/e5768d1722a3fddc6ccd1b91a6a17f432ed149b4/facexlib/utils/face_restoration_helper.py#L68).  
 - [`insightface`](https://github.com/deepinsight/insightface/tree/master/python-package) where you may find some examples [here](https://huggingface.co/h94/IP-Adapter-FaceID).
